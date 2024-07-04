@@ -1,4 +1,3 @@
-// src/components/StarWarsDetail.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchData } from '../api/mockApi';
@@ -11,11 +10,10 @@ import VehiclesCard from './VehiclesCard';
 import StarshipsCard from './StarshipsCard';
 import { StarWarsItem } from '../store/reducers/starWarsReducer';
 
-
 interface DetailProps {
   name?: string;
   title?: string;
-  [key: string]: any; // Other dynamic properties
+  [key: string]: any;
 }
 
 const StarWarsDetail: React.FC = () => {
@@ -36,7 +34,6 @@ const StarWarsDetail: React.FC = () => {
       else if (data.people) setActiveTab('people');
       else if (data.planets) setActiveTab('planets');
 
-      // Fetch related data
       const related: { [key: string]: StarWarsItem[] } = {};
       for (const key of ['films', 'species', 'vehicles', 'starships', 'people', 'planets']) {
         if (data[key] && data[key].length > 0) {
@@ -61,11 +58,11 @@ const StarWarsDetail: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate(-1); // Navigate to the previous page
+    navigate(-1); 
   };
 
   const handleHomeClick = () => {
-    navigate('/'); // Navigate to the home (listing) page
+    navigate('/');
   };
 
   if (!detail) return <div>Loading...</div>;
@@ -91,6 +88,7 @@ const StarWarsDetail: React.FC = () => {
             <span>Home</span>
           </button>
         </div>
+        <img src="/star-wars.png" alt="Star Wars Logo" className="w-1/3 mb-4" />
       </header>
       <h1 className="text-4xl text-white mb-6">{detail.name || detail.title}</h1>
       <div className="mb-4">
