@@ -94,11 +94,31 @@ const StarWarsDetail: React.FC = () => {
       </header>
       <h1 className="text-4xl text-white mb-6">{detail.name || detail.title}</h1>
       <div className="mb-4">
-        {Object.entries(detail).map(([key, value]) => (
-          !['films', 'species', 'vehicles', 'starships', 'people', 'planets'].includes(key) && (
-            <p key={key} className="text-white"><strong>{key.replace('_', ' ')}:</strong> {value}</p>
-          )
-        ))}
+        {Object.entries(detail).map(([key, value]) => {
+          if (
+            ['films', 'species', 'vehicles', 'starships', 'people', 'planets'].includes(key) ||
+            typeof value === 'object' ||
+            (typeof value === 'string' && value.startsWith('https://'))
+          ) {
+            return null;
+          }
+
+          let displayValue = value;
+          if (!isNaN(Date.parse(value))) {
+            const date = new Date(value);
+            displayValue = date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            });
+          }
+
+          return (
+            <p key={key} className="text-white">
+              <strong>{key.replace('_', ' ')}:</strong> {displayValue}
+            </p>
+          );
+        })}
       </div>
       <header className="flex justify-center space-x-4 mb-6">
         {tabs.map(tab => (
