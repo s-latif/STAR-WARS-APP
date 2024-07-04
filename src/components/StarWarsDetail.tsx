@@ -1,16 +1,27 @@
+// src/components/StarWarsDetail.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchData } from '../api/mockApi';
 import { HomeIcon, ArrowLeftIcon } from '@radix-ui/react-icons';
+import PeopleCard from './PeopleCard';
+import PlanetsCard from './PlanetsCard';
+import FilmsCard from './FilmsCard';
+import SpeciesCard from './SpeciesCard';
+import VehiclesCard from './VehiclesCard';
+import StarshipsCard from './StarshipsCard';
+import { StarWarsItem } from '../store/reducers/starWarsReducer';
+
 
 interface DetailProps {
-  name: string;
-  [key: string]: any; 
+  name?: string;
+  title?: string;
+  [key: string]: any; // Other dynamic properties
 }
 
 const StarWarsDetail: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const [detail, setDetail] = useState<DetailProps | null>(null);
+  const [relatedData, setRelatedData] = useState<{ [key: string]: StarWarsItem[] }>({});
   const [activeTab, setActiveTab] = useState<string>('');
   const navigate = useNavigate();
 
@@ -22,6 +33,18 @@ const StarWarsDetail: React.FC = () => {
       else if (data.species) setActiveTab('species');
       else if (data.vehicles) setActiveTab('vehicles');
       else if (data.starships) setActiveTab('starships');
+      else if (data.people) setActiveTab('people');
+      else if (data.planets) setActiveTab('planets');
+
+      // Fetch related data
+      const related: { [key: string]: StarWarsItem[] } = {};
+      for (const key of ['films', 'species', 'vehicles', 'starships', 'people', 'planets']) {
+        if (data[key] && data[key].length > 0) {
+          const promises = data[key].map((url: string) => fetchData(url));
+          related[key] = await Promise.all(promises);
+        }
+      }
+      setRelatedData(related);
     };
     loadDetail();
   }, [type, id]);
@@ -38,20 +61,20 @@ const StarWarsDetail: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate(-1);
+    navigate(-1); // Navigate to the previous page
   };
 
   const handleHomeClick = () => {
-    navigate('/');
+    navigate('/'); // Navigate to the home (listing) page
   };
 
   if (!detail) return <div>Loading...</div>;
 
-  const tabs = ['films', 'species', 'vehicles', 'starships'].filter(tab => detail[tab] && detail[tab].length > 0);
+  const tabs = ['films', 'species', 'vehicles', 'starships', 'people', 'planets'].filter(tab => detail[tab] && detail[tab].length > 0);
 
   return (
     <div className="p-4">
-      <header className=" w-full bg-black p-4 flex justify-between items-center">
+      <header className="flex justify-between items-center mb-4">
         <div className="flex space-x-4">
           <button
             onClick={handleBackClick}
@@ -69,42 +92,96 @@ const StarWarsDetail: React.FC = () => {
           </button>
         </div>
       </header>
-      <div className="mt-20">
-        <h1 className="text-4xl text-white mb-6">{detail.name || detail.title}</h1>
-        <div className="mb-4">
-          {Object.entries(detail).map(([key, value]) => (
-            !['films', 'species', 'vehicles', 'starships', 'people'].includes(key) && (
-              <p key={key} className="text-white"><strong>{key.replace('_', ' ')}:</strong> {value}</p>
-            )
+      <h1 className="text-4xl text-white mb-6">{detail.name || detail.title}</h1>
+      <div className="mb-4">
+        {Object.entries(detail).map(([key, value]) => (
+          !['films', 'species', 'vehicles', 'starships', 'people', 'planets'].includes(key) && (
+            <p key={key} className="text-white"><strong>{key.replace('_', ' ')}:</strong> {value}</p>
+          )
+        ))}
+      </div>
+      <header className="flex justify-center space-x-4 mb-6">
+        {tabs.map(tab => (
+          <button
+            key={tab}
+            onClick={() => handleTabClick(tab)}
+            className={`px-4 py-2 text-white rounded transition-transform transform hover:scale-105 ${
+              activeTab === tab ? 'bg-blue-500' : 'bg-gray-700'
+            }`}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </header>
+      {activeTab && relatedData[activeTab] && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {activeTab === 'films' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <FilmsCard
+              key={item.url}
+              url={item.url}
+              title={item.title || ''}
+              director={item.director || ''}
+              release_date={item.release_date || ''}
+              onClick={handleItemClick}
+            />
+          ))}
+          {activeTab === 'species' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <SpeciesCard
+              key={item.url}
+              url={item.url}
+              name={item.name}
+              classification={item.classification || ''}
+              designation={item.designation || ''}
+              average_height={item.average_height || ''}
+              onClick={handleItemClick}
+            />
+          ))}
+          {activeTab === 'vehicles' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <VehiclesCard
+              key={item.url}
+              url={item.url}
+              name={item.name}
+              model={item.model || ''}
+              manufacturer={item.manufacturer || ''}
+              cost_in_credits={item.cost_in_credits || ''}
+              onClick={handleItemClick}
+            />
+          ))}
+          {activeTab === 'starships' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <StarshipsCard
+              key={item.url}
+              url={item.url}
+              name={item.name}
+              model={item.model || ''}
+              manufacturer={item.manufacturer || ''}
+              hyperdrive_rating={item.hyperdrive_rating || ''}
+              onClick={handleItemClick}
+            />
+          ))}
+          {activeTab === 'people' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <PeopleCard
+              key={item.url}
+              url={item.url}
+              name={item.name}
+              gender={item.gender}
+              birth_year={item.birth_year}
+              height={item.height}
+              onClick={handleItemClick}
+            />
+          ))}
+          {activeTab === 'planets' && relatedData[activeTab].map((item: StarWarsItem) => (
+            <PlanetsCard
+              key={item.url}
+              url={item.url}
+              name={item.name}
+              climate={item.climate}
+              terrain={item.terrain}
+              population={item.population}
+              onClick={handleItemClick}
+            />
           ))}
         </div>
-        <header className="flex justify-center space-x-4 mb-6">
-          {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => handleTabClick(tab)}
-              className={`px-4 py-2 text-white rounded transition-transform transform hover:scale-105 ${
-                activeTab === tab ? 'bg-blue-500' : 'bg-gray-700'
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </header>
-        {activeTab && detail[activeTab] && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {detail[activeTab].map((url: string) => (
-              <div
-                key={url}
-                onClick={() => handleItemClick(url)}
-                className="bg-gray-800 p-4 rounded-lg text-center transition-transform transform hover:scale-105 cursor-pointer"
-              >
-                <p className="text-white">{url}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

@@ -1,9 +1,19 @@
+// src/components/StarWarsList.tsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { getStarWarsData } from '../store/actions/starWarsActions';
 import { RootState, AppDispatch } from '../store';
 import { fetchTabs } from '../api/mockApi';
+
+import PlanetsCard from './PlanetsCard';
+import FilmsCard from './FilmsCard';
+import SpeciesCard from './SpeciesCard';
+import VehiclesCard from './VehiclesCard';
+import StarshipsCard from './StarshipsCard';
+import { StarWarsItem } from '../store/reducers/starWarsReducer';
+import PeopleCard from './PeopleCard';
+
 
 interface Tabs {
   people: string;
@@ -42,7 +52,7 @@ const StarWarsList: React.FC = () => {
 
   const handleTabClick = (tab: keyof Tabs) => {
     setActiveTab(tab);
-    setVisibleCount(8);
+    setVisibleCount(8); // Reset visible count when tab changes
     dispatch(getStarWarsData(tabs[tab]));
   };
 
@@ -77,15 +87,70 @@ const StarWarsList: React.FC = () => {
       </header>
       <h1 className="text-4xl text-white mb-6">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {data.slice(0, visibleCount).map((item) => (
-          <div
+        {activeTab === 'people' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <PeopleCard
             key={item.url}
-            onClick={() => handleItemClick(item.url)}
-            className="bg-gray-800 p-4 rounded-lg text-center transition-transform transform hover:scale-105 cursor-pointer"
-          >
-            <h2 className="text-xl text-white">{item.name}</h2>
-            <p className="text-gray-400">{item.url}</p>
-          </div>
+            url={item.url}
+            name={item.name}
+            gender={item.gender}
+            birth_year={item.birth_year}
+            height={item.height}
+            onClick={handleItemClick}
+          />
+        ))}
+        {activeTab === 'planets' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <PlanetsCard
+            key={item.url}
+            url={item.url}
+            name={item.name}
+            climate={item.climate}
+            terrain={item.terrain}
+            population={item.population}
+            onClick={handleItemClick}
+          />
+        ))}
+        {activeTab === 'films' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <FilmsCard
+            key={item.url}
+            url={item.url}
+            title={item.title}
+            director={item.director}
+            release_date={item.release_date}
+            onClick={handleItemClick}
+          />
+        ))}
+        {activeTab === 'species' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <SpeciesCard
+            key={item.url}
+            url={item.url}
+            name={item.name}
+            classification={item.classification}
+            designation={item.designation}
+            average_height={item.average_height}
+            onClick={handleItemClick}
+          />
+        ))}
+        {activeTab === 'vehicles' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <VehiclesCard
+            key={item.url}
+            url={item.url}
+            name={item.name}
+            model={item.model}
+            manufacturer={item.manufacturer}
+            cost_in_credits={item.cost_in_credits}
+            onClick={handleItemClick}
+          />
+        ))}
+        {activeTab === 'starships' && data.slice(0, visibleCount).map((item: StarWarsItem) => (
+          <StarshipsCard
+            key={item.url}
+            url={item.url}
+            name={item.name}
+            model={item.model}
+            manufacturer={item.manufacturer}
+            hyperdrive_rating={item.hyperdrive_rating}
+            onClick={handleItemClick}
+          />
         ))}
       </div>
       {next && visibleCount < data.length && (

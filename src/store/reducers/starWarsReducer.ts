@@ -1,8 +1,24 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getStarWarsData } from '../actions/starWarsActions';
 
-interface StarWarsItem {
-  name: string;
+export interface StarWarsItem {
+  name?: string;
+  gender?: string;
+  birth_year?: string;
+  height?: string;
+  climate?: string;
+  terrain?: string;
+  population?: string;
+  title?: string;
+  director?: string;
+  release_date?: string;
+  classification?: string;
+  designation?: string;
+  average_height?: string;
+  model?: string;
+  manufacturer?: string;
+  cost_in_credits?: string;
+  hyperdrive_rating?: string;
   url: string;
 }
 
