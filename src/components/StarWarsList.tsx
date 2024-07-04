@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { getStarWarsData } from '../store/actions/starWarsActions';
 import { RootState, AppDispatch } from '../store';
 import { fetchTabs } from '../api/mockApi';
@@ -26,6 +27,7 @@ const StarWarsList: React.FC = () => {
   });
   const [activeTab, setActiveTab] = useState<string>('');
   const [visibleCount, setVisibleCount] = useState(8);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadTabs = async () => {
@@ -40,7 +42,7 @@ const StarWarsList: React.FC = () => {
 
   const handleTabClick = (tab: keyof Tabs) => {
     setActiveTab(tab);
-    setVisibleCount(8); // Reset visible count when tab changes
+    setVisibleCount(8);
     dispatch(getStarWarsData(tabs[tab]));
   };
 
@@ -49,6 +51,13 @@ const StarWarsList: React.FC = () => {
       dispatch(getStarWarsData(next));
       setVisibleCount((prevCount) => prevCount + 8);
     }
+  };
+
+  const handleItemClick = (url: string) => {
+    const parts = url.split('/');
+    const newType = parts[parts.length - 3];
+    const newId = parts[parts.length - 2];
+    navigate(`/detail/${newType}/${newId}`);
   };
 
   return (
@@ -71,7 +80,8 @@ const StarWarsList: React.FC = () => {
         {data.slice(0, visibleCount).map((item) => (
           <div
             key={item.url}
-            className="bg-gray-800 p-4 rounded-lg text-center transition-transform transform hover:scale-105"
+            onClick={() => handleItemClick(item.url)}
+            className="bg-gray-800 p-4 rounded-lg text-center transition-transform transform hover:scale-105 cursor-pointer"
           >
             <h2 className="text-xl text-white">{item.name}</h2>
             <p className="text-gray-400">{item.url}</p>

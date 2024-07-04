@@ -1,4 +1,3 @@
-// src/store/actions/starWarsActions.ts
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchData } from '../../api/mockApi';
 

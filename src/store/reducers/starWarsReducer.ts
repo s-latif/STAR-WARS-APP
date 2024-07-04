@@ -1,4 +1,3 @@
-// src/store/reducers/starWarsReducer.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getStarWarsData } from '../actions/starWarsActions';
 
